@@ -4,7 +4,7 @@ from TableSchema import *
 import csv
 
 DATABASE_NAME = 'database.db'
-DEBUG = True
+DEBUG = True # Make true to print debug statements. It also deletes previous db and runs setup
 GENERATE_TABLE_SCHEMA = False
 
 TABLE_COMMANDS = {"Department": """
