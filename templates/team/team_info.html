@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% include "header.html" %}
+
+<head>
+</head>
+<body>
+
+    <h3>{{course_id}}-{{sec_no}}</h3>
+    <p>Team #{{team_id}}</p>
+
+    {% if user_type == "Professor" %}
+    <form action="/team/{{course_id}}/{{sec_no}}/{{team_id}}" method="POST">
+        <select type="select" id="email" name="email">
+            {% for student in students %}
+            <option value="{{student[1]}}" selected>{{student[0]}}</option>
+            {% endfor %}
+        </select>
+        <input type="hidden" name="action" value="add">
+        <input type="submit" value="Add Student">
+    </form>
+    <br>
+    {% endif %}
+
+    <table>
+        <tr>
+            <th style="text-align:center" colspan="3">Team members</th></tr>
+        <tr>
+            {% for header in team_members["headers"] %}
+            <th>{{header}}</th>
+            {% endfor %}
+        </tr>
+        {% for row in team_members["team_members"] %}
+        <tr>
+            <th><a href="/user/{{row[1]}}">{{row[0]}}</a></th>
+            <th><a href="mailto:{{row[1]}}">{{row[1]}}</a></th>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

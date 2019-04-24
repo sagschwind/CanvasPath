@@ -1,3 +1,7 @@
+The password for the administrator account is 'password' without quotes
+The address when run on the local laptop is http://127.0.0.1:5000, this can be modified in Utility.py
+To prevent the database from being overwritten everytime flask is started, set DEBUG to False in database/bootup.py
+
 # CMPSC 431W Project
 
 You will be able to access the two CSV files in the GitHub classroom repository “Project”. We suggest using Pandas (Python library) to parse the CSV files. Please note the following:

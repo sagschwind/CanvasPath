@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% include "admin/admin_header.html" %}
+
+<head>
+</head>
+<body>
+    <h3>{{course_info[0]}}: {{course_info[1]}}</h3>
+    <h4>{{course_info[2]}}</h4>
+
+    <form action="/admin/courses/{{course_info[0]}}/add_section" method="POST">
+        <b>Add Section</b>
+        <br>
+        Professor:
+        <select id="email" name="email">
+            {% for email in professor_emails %}
+            <option value="{{email}}" selected>{{email}}</option>
+            {% endfor %}
+        </select>
+        <br>
+        Type:
+        <select id="type" name="type">
+            <option value="Reg" selected>Regular</option>
+            <option value="Cap">Capstone</option>
+        </select>
+        <br>
+        Enroll Limit:
+        <input type="number" name="enroll_limit" min="10" value="25" step="1" max="99"/>
+        <input type="submit" value="Add Section">
+        <br><br>
+    </form>
+
+    <table>
+        <tr>
+            <th>Section Number</th>
+            <th>Type</th>
+            <th>Seats Open</th>
+            <th>Total Seats</th>
+        </tr>
+        {% for section in sections %}
+        <tr>
+            <th><a href="/admin/courses/{{course_info[0]}}/{{section[0]}}">{{section[0]}}</a></th>
+            {% for column in section[1:-1] %}
+            <th>{{column}}</th>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

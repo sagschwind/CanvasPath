@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% include "header.html" %}
+
+<body>
+    {% if teaches %}
+    <h3>{{course_info["course_info"]}}</h3>
+    <h4>{{student_grades["total_grade"]}}</h4>
+
+    {% if course_info["professors"] is not none %}
+    <p>Please email <a href="mailto:admin@lionstate.edu">admin@lionstate.edu</a> to get a professor assigned</p>
+    {% else %}
+    {% if course_info["professors"]|length > 1 %}
+    <p>Professors:</p>
+    <ul>
+        {% for professor in course_info["professors"] %}
+        <li><a href="/user/{{professor[1]}}">{{professor[0]}}</a></li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    {% set professor = course_info["professors"][0] %}
+    <p>Professor: <a href="/user/{{professor[1]}}">{{professor[0]}}</a></p>
+    {% endif %}
+    {% endif %}
+
+
+    <p><a href="/courses/{{course_id}}/{{sec_no}}/add_assignment">Add assignment</a></p>
+
+    {% if 'hw_assignments' in student_grades %}
+    {% if student_grades['hw_assignments'] is not none %}
+    <table>
+
+        <tr class="header">
+            <th>Homework Number</th>
+            <th>Description</th>
+        </tr>
+        {%for grade in student_grades['hw_assignments'] %}
+        <tr>
+            <th>
+                <a href="/courses/{{course_id}}/{{sec_no}}/homework/{{grade[0]}}">
+                    {{grade[0]}}
+                </a>
+            </th>
+            <th>{{grade[1]}}</th>
+        </tr>
+        {% endfor %}
+
+    </table>
+    {% endif %}
+    {% endif %}
+
+    <br/>
+
+    {% if 'exams' in student_grades %}
+    {% if student_grades['exams'] is not none %}
+
+    <table>
+        <tr class="header">
+            <th>Exam Number</th>
+            <th>Description</th>
+        </tr>
+        {% for grade in student_grades['exams'] %}
+        <tr>
+            <th>
+                <a href="/courses/{{course_id}}/{{sec_no}}/exam/{{grade[0]}}">
+                    {{grade[0]}}
+                </a>
+            </th>
+            <th>{{grade[1]}}</th>
+        </tr>
+        {% endfor %}
+
+    </table>
+    {% endif %}
+    {% endif %}
+
+
+
+    <br/>
+
+    {% if 'capstone_projects' in student_grades %}
+    {% if student_grades['capstone_projects'] is not none %}
+    <table>
+        <tr class="header">
+            <th>Capstone Project</th>
+            <th>Mentor</th>
+            <th>Number of teams</th>
+        </tr>
+        {% for grade in student_grades['capstone_projects'] %}
+        <tr>
+            <th>
+                <a href="/courses/{{course_id}}/{{sec_no}}/project/{{grade[0]}}">
+                    {{grade[0]}}
+                </a>
+            </th>
+            <th>{{grade[1]}}</th>
+            <th>{{grade[2]}}</th>
+        </tr>
+        {% endfor %}
+
+    </table>
+    {% endif %}
+    {% endif %}
+    {% else %} <!-- end enrolled if statment -->
+    <p style="color:red;">You tried to access a section of {{course_id}} that you are not enrolled in</p>
+    <p>You may try to add the section at this link: <a href="/courses/{{course_id}}">{{course_id}}</a></p>
+    {% endif %}
+</body>
+</html>

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% include "header.html" %}
+
+<head>
+</head>
+<body>
+    <h3>{{course_info[0]}}: {{course_info[1]}}</h3>
+    <h4>{{course_info[2]}}</h4>
+
+    {% if teaching == true %}
+    <p>You are currently teaching this course</p>
+    {% endif %}
+
+    <table>
+        <tr>
+            <th>Section Number</th>
+            <th>Type</th>
+            <th>Seats Open</th>
+            <th>Total Seats</th>
+        </tr>
+        {% for section in sections %}
+        <tr>
+            {% for column in section[:-1] %}
+            <th>{{column}}</th>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+
+
+    </table>
+</body>
+</html>

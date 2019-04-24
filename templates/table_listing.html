@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% include "header.html" %}
+
+<head>
+</head>
+<body>
+    <br>
+    <table style="margin: 0 auto;">
+        <tr>
+            {% for header in headers %}
+            <th>{{header}}</th>
+            {% endfor %}
+        </tr>
+        {% for row in data_2d %}
+        <tr>
+            <th>{% if link_prefix is defined %}<a href="/{{link_prefix}}/{{row[0]}}">{% endif %}
+                {{row[0]}}{% if link_prefix is defined %}</a>{% endif %}
+            </th>
+            {% for column in row[1:] %}
+            <th>{{column}}</th>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

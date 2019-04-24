@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% include "header.html" %}
+
+<style>
+    .hidden {
+    display:none;
+    }
+</style>
+
+<body>
+    <h3>Add assignment to {{course_id}}-{{sec_no}}:</h3>
+    <form action="/courses/{{course_id}}/{{sec_no}}/add_assignment" method="POST">
+        <br>
+        <b>Type:</b>
+        <select type="select" id="switch" name="type" onchange="select(this)">
+            <option value="homework" selected>Homework</option>
+            <option value="exam">Exam</option>
+            {% if professor_emails is not none %}
+            <option id="capstone" value="capstone">Capstone</option>
+            {% endif %}
+        </select>
+        <br><br>
+        <input type="text" name="description" id="description" placeholder="Assignment Description" required>
+
+        {% if professor_emails is not none %}
+        <a id="mentor" style="display:none;">Mentor: </a>
+
+
+        <select type="hidden" style="display:none;" id="email" name="email">
+            {% for email in professor_emails %}
+            <option value="{{email}}" selected>{{email}}</option>
+            {% endfor %}
+        </select>
+        {% endif %}
+
+        <br><br>
+        <input type="submit" value="Submit new assignment">
+    </form>
+
+</body>
+
+{% if professor_emails is not none %}
+<script>
+function select(selector)
+{
+		if(selector){
+        admOptionValue = document.getElementById("capstone").value;
+        if(admOptionValue == selector.value){
+            document.getElementById("mentor").style.display = "inline";
+            document.getElementById("email").style.display = "inline";
+            document.getElementById("description").style.display = "none";
+        }
+        else{
+        document.getElementById("email").style.display = "inline";
+            document.getElementById("email").style.display = "none";
+            document.getElementById("description").style.display = "inline";
+        }
+    }
+    else{
+        document.getElementById("description").style.display = "inline";
+        document.getElementById("email").style.display = "none";
+    }
+}
+</script>
+{% endif %}
+</html>

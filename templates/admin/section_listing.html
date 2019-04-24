@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% include "admin/admin_header.html" %}
+
+<head>
+</head>
+<body>
+    <h3>{{course_info}}</h3>
+
+    <table>
+        <tr>
+            <th>Professor</th>
+            <th>Action</th>
+        </tr>
+
+        <tr>
+            <form action="/admin/courses/{{course_id}}/{{sec_no}}/add_professor" method="POST">
+                <th>
+                    <select id="email" name="email">
+                        {% for email in professor_emails %}
+                        <option value="{{email}}" selected>{{email}}</option>
+                        {% endfor %}
+                    </select>
+                </th>
+                <th>
+                    <input type="submit" value="Add professor">
+                </th>
+            </form>
+        </tr>
+
+        {% for professor in professors %}
+        <tr>
+            <th>{{professor[0]}}</th>
+            {% if professors|length > 1 %}
+            <th>
+                <form action="/admin/courses/{{course_id}}/{{sec_no}}/drop_professor" method="POST">
+                    <input type="hidden" id="drop_professor_email" name="email" value="{{professor[1]}}">
+                    <input type="submit" value="Drop professor">
+                </form>
+            </th>
+            {% else %}
+            <th>Can't drop the last professor</th>
+            {% endif %}
+
+        </tr>
+        {% endfor %}
+    </table>
+    <br><br>
+    <table>
+        <tr>
+            <th>Student</th>
+            <th>Action</th>
+        </tr>
+
+        <tr>
+            <form action="/admin/courses/{{course_id}}/{{sec_no}}/add_student" method="POST">
+                <th>
+                    <select id="student_email" name="email">
+                        {% for email in student_emails %}
+                        <option value="{{email}}" selected>{{email}}</option>
+                        {% endfor %}
+                    </select>
+                </th>
+                <th>
+                    <input type="submit" value="Add student">
+                </th>
+            </form>
+        </tr>
+
+        {% for student in students %}
+        <tr>
+            <th>{{student[0]}}</th>
+            <th>
+                <form action="/admin/courses/{{course_id}}/{{sec_no}}/drop_student" method="POST">
+                    <input type="hidden" id="drop_student_email" name="email" value="{{student[1]}}">
+                    <input type="submit" value="Drop student">
+                </form>
+            </th>
+        </tr>
+        {% endfor %}
+
+    </table>
+</body>
+</html>

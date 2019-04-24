@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% include "admin/admin_header.html" %}
+
+<head>
+</head>
+<body>
+    <br>
+    <table style="margin: 0 auto;">
+        <tr>
+            <th style="text-align:center" colspan="3">Professors</th></tr>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+        </tr>
+        {% for row in all_students %}
+        <tr>
+            <th>{{row[0]}}</th>
+            <th><a href="mailto:{{row[1]}}">{{row[1]}}</a></th>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

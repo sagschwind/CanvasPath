@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% include "admin/admin_header.html" %}
+
+<head>
+</head>
+<body>
+    <form action="/admin/courses/add_course" method="POST">
+        <br>
+        Add Course:
+        <br>
+        <input type="text" name="course_id" placeholder="Course ID" required>
+        <input type="text" name="course_name" placeholder="Name" required>
+        <input type="text" name="course_description" placeholder="Description" required>
+        <input type="submit" value="Submit">
+        <br><br>
+    </form>
+
+    <table>
+        <tr>
+            {% for header in headers %}
+            <th>{{header}}</th>
+            {% endfor %}
+            <th>Drop Course</th>
+        </tr>
+        {% for row in data_2d %}
+        <tr>
+            <th>{% if link_prefix is defined %}<a href="/{{link_prefix}}/{{row[0]}}">{% endif %}
+                {{row[0]}}{% if link_prefix is defined %}</a>{% endif %}
+            </th>
+            {% for column in row[1:] %}
+            <th>{{column}}</th>
+            {% endfor %}
+            <th>
+                <form action="/admin/courses/drop_course/{{row[0]}}" method="POST">
+                    <input type="submit" value="Drop">
+                </form>
+            </th>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

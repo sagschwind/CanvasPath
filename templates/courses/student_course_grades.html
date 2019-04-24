@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% include "header.html" %}
+
+<body>
+    {% if enrolled %}
+    <h3>{{course_info["course_info"]}}</h3>
+    <h4>{{student_grades["total_grade"]}}</h4>
+
+    {% if course_info["professors"] is defined %}
+    <p>Please email <a href="mailto:admin@lionstate.edu">admin@lionstate.edu</a> to get a professor assigned</p>
+    {% else %}
+    {% if course_info["professors"]|length > 1 %}
+    <p>Professors:</p>
+    <ul>
+        {% for professor in course_info["professors"] %}
+        <li><a href="/user/{{professor[1]}}">{{professor[0]}}</a></li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    {% set professor = course_info["professors"][0] %}
+    <p>Professor: <a href="/user/{{professor[1]}}">{{professor[0]}}</a></p>
+    {% endif %}
+    {% endif %}
+
+    {% if 'hw_assignments' in student_grades %}
+    {% if student_grades['hw_assignments'] is not none %}
+    <table>
+
+        <tr class="header">
+            <th>Homework Number</th>
+            <th>Description</th>
+            <th>Grade</th>
+        </tr>
+        {%for grade in student_grades['hw_assignments'] %}
+        <tr>
+            <th>Homework {{grade[0]}}</th>
+            <th>{{grade[1]}}</th>
+            <th>{{grade[2]}}</th>
+        </tr>
+        {% endfor %}
+
+    </table>
+    {% endif %}
+    {% endif %}
+
+    <br/>
+
+    {% if 'exam_grades' in student_grades %}
+    {% if student_grades['exam_grades'] is not none %}
+    <table>
+        <tr class="header">
+            <th>Exam Number</th>
+            <th>Description</th>
+            <th>Grade</th>
+        </tr>
+        {% for grade in student_grades['exam_grades'] %}
+        <tr>
+            <th>Exam {{grade[0]}}</th>
+            <th>{{grade[1]}}</th>
+            <th>{{grade[2]}}</th>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+    {% endif%}
+
+    <br/>
+
+    {% if 'capstone_grades' in student_grades %}
+    {% if student_grades['capstone_grades'] is not none %}
+    <table>
+        <tr class="header">
+            <th>Capstone Project</th>
+            <th>Team ID</th>
+            <th>Sponsor</th>
+            <th>Grade</th>
+        </tr>
+        {% for grade in student_grades['capstone_grades'] %}
+        <tr>
+            <th><a href="/courses/{{course_id}}/{{sec_no}}/project/{{grade[0]}}">Project {{grade[0]}}</a></th>
+            <th><a href="/team/{{course_id}}/{{sec_no}}/{{grade[1]}}">Team {{grade[1]}}</a></th>
+            <th><a href="/user/{{grade[3]}}">{{grade[4]}}</a></th>
+            <th>{{grade[2]}}</th>
+        </tr>
+        {% endfor %}
+
+    </table>
+    {% endif %}
+    {% endif %}
+    {% else %} <!-- end enrolled if statment -->
+    <p style="color:red;">You tried to access a section of {{course_id}} that you are not enrolled in</p>
+    <p>You may try to add the section at this link: <a href="/courses/{{course_id}}">{{course_id}}</a></p>
+    {% endif %}
+</body>
+</html>

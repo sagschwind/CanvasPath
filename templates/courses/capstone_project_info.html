@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% include "header.html" %}
+{% set info = assignment["information"] %}
+<body>
+    <h3>{{assignment['course_id']}}-{{assignment['sec_no']}}</h3>
+    <p>Capstone Project #{{info[0]}}</p>
+    <p>Sponsor: <a href="/user/{{info[1]}}">{{info[2]}}</a></p>
+</body>
+</html>

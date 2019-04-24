@@ -1,7 +1,10 @@
-import sqlite3 as sql
-import os
-from TableSchema import *
 import csv
+import os
+import sqlite3 as sql
+
+from werkzeug.security import generate_password_hash
+from database.TableSchema import *
+from database.course_management_api import update_section_teaching_team, add_enroll_object
 
 DATABASE_NAME = 'database.db'
 DEBUG = True # Make true to print debug statements. It also deletes previous db and runs setup
@@ -65,7 +68,7 @@ course_description TEXT NOT NULL
                   team_id TEXT NOT NULL,
                   PRIMARY KEY(prof_email, team_id),
                   FOREIGN KEY(prof_email) REFERENCES Professor(email),
-                  FOREIGN KEY(team_id) REFERENCES Prof_teams(team_id)
+                  FOREIGN KEY(team_id) REFERENCES Prof_teams(team_id) ON DELETE CASCADE
                   );
                   """,
 
@@ -78,8 +81,8 @@ course_description TEXT NOT NULL
                   enroll_limit INT NOT NULL,
                   prof_team_id TEXT NOT NULL,
                   PRIMARY KEY(course_id, sec_no),
-                  FOREIGN KEY (course_id) REFERENCES Course(course_id),
-                  FOREIGN KEY (prof_team_id) REFERENCES Prof_teams(team_id)
+                  FOREIGN KEY (course_id) REFERENCES Course(course_id) ON DELETE CASCADE,
+                  FOREIGN KEY (prof_team_id) REFERENCES Prof_teams(team_id) ON DELETE SET NULL
                   );
                   """,
                   "Enrolls":"""
@@ -88,8 +91,8 @@ course_description TEXT NOT NULL
                   course_id TEXT NOT NULL,
                   sec_no INT NOT NULL,
                   PRIMARY KEY(student_email, course_id, sec_no),
-                  FOREIGN KEY(student_email) REFERENCES Student(email),
-                  FOREIGN KEY(course_id, sec_no) REFERENCES Sections(course_id, sec_no)
+                  FOREIGN KEY(student_email) REFERENCES Student(email) ON DELETE CASCADE,
+                  FOREIGN KEY(course_id, sec_no) REFERENCES Sections(course_id, sec_no) ON DELETE CASCADE
                   );
                   """,
                   "Homework":"""
@@ -99,7 +102,7 @@ course_description TEXT NOT NULL
                   hw_no INT NOT NULL,
                   hw_details TEXT NOT NULL,
                   PRIMARY KEY(course_id, sec_no, hw_no),
-                  FOREIGN KEY (course_id, sec_no) REFERENCES Sections(course_id, sec_no)
+                  FOREIGN KEY (course_id, sec_no) REFERENCES Sections(course_id, sec_no) ON DELETE CASCADE
                   );
                   """,
                   "Homework_grades":"""
@@ -110,8 +113,8 @@ course_description TEXT NOT NULL
                   hw_no INT NOT NULL,
                   grade REAL NOT NULL,
                   PRIMARY KEY(student_email, course_id, sec_no, hw_no),
-                  FOREIGN KEY (student_email) REFERENCES Student(email),
-                  FOREIGN KEY (course_id, sec_no, hw_no) REFERENCES Homework(course_id, sec_no, hw_no)
+                  FOREIGN KEY (student_email) REFERENCES Student(email) ON DELETE CASCADE,
+                  FOREIGN KEY (course_id, sec_no, hw_no) REFERENCES Homework(course_id, sec_no, hw_no) ON DELETE CASCADE
                   );
                   """,
                   "Exams":"""
@@ -121,7 +124,7 @@ course_description TEXT NOT NULL
                   exam_no INT NOT NULL,
                   exam_details TEXT NOT NULL,
                   PRIMARY KEY(course_id, sec_no, exam_no),
-                  FOREIGN KEY (course_id, sec_no) REFERENCES Sections(course_id, sec_no)
+                  FOREIGN KEY (course_id, sec_no) REFERENCES Sections(course_id, sec_no) ON DELETE CASCADE
                   );
                   """,
                   "Exam_grades":"""
@@ -132,8 +135,8 @@ course_description TEXT NOT NULL
                   exam_no INT NOT NULL,
                   grades REAL NOT NULL,
                   PRIMARY KEY(student_email, course_id, sec_no, exam_no),
-                  FOREIGN KEY (student_email) REFERENCES Student(email),
-                  FOREIGN KEY (course_id, sec_no, exam_no) REFERENCES Exams(course_id, sec_no, exam_no)
+                  FOREIGN KEY (student_email) REFERENCES Student(email) ON DELETE CASCADE,
+                  FOREIGN KEY (course_id, sec_no, exam_no) REFERENCES Exams(course_id, sec_no, exam_no) ON DELETE CASCADE
                   );
                   """,
                   "Capstone_section":"""
@@ -143,8 +146,8 @@ course_description TEXT NOT NULL
                   project_no INT NOT NULL,
                   sponsor_id TEXT NOT NULL,
                   PRIMARY KEY(course_id, sec_no, project_no),
-                  FOREIGN KEY (course_id, sec_no) REFERENCES Sections(course_id, sec_no),
-                  FOREIGN KEY (sponsor_id) REFERENCES Professor(email)
+                  FOREIGN KEY (course_id, sec_no) REFERENCES Sections(course_id, sec_no) ON DELETE CASCADE,
+                  FOREIGN KEY (sponsor_id) REFERENCES Professor(email) ON DELETE SET NULL
                   );
                   """,
                   "Capstone_Team":"""
@@ -154,7 +157,7 @@ course_description TEXT NOT NULL
                   team_id TEXT NOT NULL,
                   project_no INT NOT NULL,
                   PRIMARY KEY(course_id, sec_no, team_id),
-                  FOREIGN KEY (course_id, sec_no, project_no) References Capstone_section(course_id, sec_no, project_no)
+                  FOREIGN KEY (course_id, sec_no, project_no) References Capstone_section(course_id, sec_no, project_no) ON DELETE CASCADE
                   );
                   """,
                   "Capstone_Team_Members":"""
@@ -163,9 +166,9 @@ course_description TEXT NOT NULL
                   team_id TEXT NOT NULL,
                   course_id TEXT NOT NULL,
                   sec_no INT NOT NULL,
-                  PRIMARY KEY(team_id, course_id, sec_no),
-                  FOREIGN KEY (student_email) REFERENCES Student(email),
-                  FOREIGN KEY (team_id, course_id, sec_no) REFERENCES Capstone_Team(team_id, course_id, sec_no)
+                  PRIMARY KEY(team_id, course_id, sec_no, student_email),
+                  FOREIGN KEY (student_email) REFERENCES Student(email) ON DELETE CASCADE,
+                  FOREIGN KEY (team_id, course_id, sec_no) REFERENCES Capstone_Team(team_id, course_id, sec_no) ON DELETE CASCADE
                   );
                   """,
                   "Capstone_grades": """
@@ -175,7 +178,14 @@ course_description TEXT NOT NULL
                   team_id TEXT NOT NULL,
                   grade REAL NOT NULL,
                   PRIMARY KEY(course_id, sec_no, team_id),
-                  FOREIGN KEY (course_id, sec_no, team_id) REFERENCES Capstone_Team(course_id, sec_no, team_id)
+                  FOREIGN KEY (course_id, sec_no, team_id) REFERENCES Capstone_Team(course_id, sec_no, team_id) ON DELETE CASCADE
+                  );
+                  """,
+                  "Admin_Info":"""
+                  CREATE TABLE Admin_Info(
+                  user_name TEXT NOT NULL,
+                  password TEXT NO NULL,
+                  PRIMARY KEY (user_name, password)
                   );
                   """}
 
@@ -184,7 +194,7 @@ NEEDED_TABLES = ["Student", "Zipcode", "Professor", "Department", "Course",
                  "Sections", "Enrolls", "Prof_teams", "Prof_team_members",
                  "Homework", "Homework_grades", "Exams", "Exam_grades",
                  "Capstone_section", "Capstone_Team", "Capstone_Team_Members",
-                 "Capstone_grades"]
+                 "Capstone_grades", "Admin_Info"]
 
 def start_database(db_name='database.db'):
     DATABASE_NAME = db_name
@@ -200,6 +210,8 @@ def start_database(db_name='database.db'):
         connection = sql.connect(DATABASE_NAME)
         create_tables(connection)
         upload_all_data_helper(connection)
+        test_enroll_capacity(connection)
+        connection.close()
 
 
 """
@@ -246,6 +258,23 @@ def test_table_created(table_name, connection):
     else:
         print("X")
 
+def test_enroll_capacity(connection):
+    statement = """
+    SELECT Sections.course_id, Sections.sec_no, COUNT(Enrolls.student_email), Sections.enroll_limit
+    FROM Sections
+    LEFT JOIN Enrolls
+    ON Sections.course_id = Enrolls.course_id
+    AND Sections.sec_no = Enrolls.sec_no
+    GROUP BY Sections.course_id, Sections.sec_no
+    """
+
+    cursor = connection.execute(statement)
+
+    values = cursor.fetchall()
+
+    for val in values:
+        if val[2] > val[3]:
+            print("Too many enrolled {}-{}".format(val[2],val[3]))
 """
 Generates schema data of all tables in TABLE_COMMANDS
 """
@@ -276,6 +305,8 @@ def generate_schema(table_name, connection):
 def upload_all_data_helper(connection):
     upload_data_from("Bootfiles/Students.csv", upload_student_data, connection)
     upload_data_from("Bootfiles/Professors.csv", upload_professor_data, connection)
+    upload_administrator_details(connection)
+
 def upload_data_from(filename, upload_handler, connection):
     print("Uploading", filename, "datum")
     with open(filename) as students:
@@ -306,7 +337,6 @@ def handle_course(student_email, course_info, connection):
         course_info[2]
     )
     course.bootup_insert(connection)
-    # insert_course(course, connection)
 
     section = Sections(
         course.course_id,
@@ -316,7 +346,14 @@ def handle_course(student_email, course_info, connection):
         "NULL" # Prof team not chosen yet
     )
     section.bootup_insert(connection)
-    # insert_section(section, connection)
+
+    # Enroll student in class
+    enrollment = Enrolls(
+        student_email,
+        course.course_id,
+        section.sec_no
+    )
+    add_enroll_object(enrollment)
 
     # Handle homework
     if course_info[6] != '': # True if there is a homework assignment
@@ -339,7 +376,7 @@ def handle_course(student_email, course_info, connection):
             hw_grade.bootup_insert(connection)
             # insert_hw_grade(hw_grade, connection)
 
-    # Handle course homework
+    # Handle course exams
     if course_info[9] != '':
         exam = Exams(
             course.course_id,
@@ -359,6 +396,7 @@ def handle_course(student_email, course_info, connection):
             )
             ex_grades.bootup_insert(connection)
 
+    # There are no capstone projects in the bootup data
 def upload_student_data(h_dict, s_line, connection):
     get_value = g_data(h_dict, s_line)
     zipcode = Zipcode(
@@ -370,7 +408,7 @@ def upload_student_data(h_dict, s_line, connection):
 
     student = Student(
         get_value("Email"),
-        get_value("Password"),
+        generate_password_hash(get_value("Password")),
         get_value("Full Name"),
         get_value("Age"),
         get_value("Gender"),
@@ -388,12 +426,7 @@ def upload_student_data(h_dict, s_line, connection):
         handle_course(student.email, s_line[i:i+12], connection)
 
 def upload_professor_data(h_dict, p_line, connection):
-    # Data scrubbing since the office number got seperated from building number
-    line = [i for i in p_line]
-    item = line.pop(7)
-    line[6] += "," + item
-    line[6] = line[6].strip("\"")
-    get_value = g_data(h_dict, line)
+    get_value = g_data(h_dict, p_line)
 
     if get_value("Title") == "Head":
         dept = Department(
@@ -405,7 +438,7 @@ def upload_professor_data(h_dict, p_line, connection):
 
     prof = Professor(
         get_value("Email"),
-        get_value("Password"),
+        generate_password_hash(get_value("Password")),
         get_value("Name"),
         get_value("Age"),
         get_value("Gender"),
@@ -426,6 +459,19 @@ def upload_professor_data(h_dict, p_line, connection):
     )
 
     prof_team_members.bootup_insert(connection)
+
+    update_section_teaching_team(
+        prof_team.team_id,
+        get_value("Teaching"),
+        connection
+    )
+
+def upload_administrator_details(connection):
+    user_name = "admin@lionstate.edu"
+    password = generate_password_hash("password")
+
+    admin = Admin_Info(user_name, password)
+    admin.bootup_insert(connection)
 
 
 

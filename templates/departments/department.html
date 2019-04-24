@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% include "header.html" %}
+
+<head>
+</head>
+<body>
+
+    <h3>The Department of {{dept_info[1]}} ({{dept_info[0]}})</h3>
+
+    <p>Head of {{dept_info[0]}}: <a href="/user/{{dept_head[1]}}">{{dept_head[0]}}</a></p>
+    <p>Contact info: <a href="mailto:{{dept_head[1]}}">{{dept_head[1]}}</a></p>
+    <p>Office Address: {{dept_head[2]}}</p>
+
+    <table>
+        <tr>
+            <th style="text-align:center" colspan="3">Professors</th></tr>
+        <tr>
+            {% for header in headers %}
+            <th>{{header}}</th>
+            {% endfor %}
+        </tr>
+        {% for row in data_2d %}
+        <tr>
+            <th><a href="/user/{{row[1]}}">{{row[0]}}</a></th>
+            <th><a href="mailto:{{row[1]}}">{{row[1]}}</a></th>
+            {% for column in row[2:] %}
+            <th>{{column}}</th>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

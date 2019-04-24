@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% include "header.html" %}
+
+<head>
+    {% if courses is defined %}
+        <br>
+        <table style="margin: 0 auto;">
+            <tr>
+                <th>{{headers[0]}}</th>
+                <th>{{headers[1]}}</th>
+            </tr>
+            {%for course in courses%}
+            <tr>
+                <th><a href="/courses/{{course[0]}}/{{course[1]}}">{{course[0]}} - {{course[1]}}</a></th>
+                <th>{{course[2]}}</th>
+            </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
+</head>
+<body>
+
+</body>
+</html>

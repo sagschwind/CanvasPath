@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% include "header.html" %}
+{% set info = assignment["information"] %}
+<body>
+    <h3>{{assignment['course_id']}}-{{assignment['sec_no']}}</h3>
+    <p>Capstone Project #{{info[0]}}</p>
+    <p>Sponsor: <a href="/user/{{info[1]}}">{{info[2]}}</a></p>
+
+    <table style="table-layout: fixed; width:30%">
+
+        <tr class="header">
+            {% for header in assignment["headers"] %}
+            <th>{{header}}</th>
+            {% endfor %}
+        </tr>
+
+        <form action="/courses/{{assignment['course_id']}}/{{assignment['sec_no']}}/project/{{info[0]}}/add_team" method="POST">
+            <input type="submit" value="Add team"><br>
+        </form>
+        <br>
+        {%for grade in assignment['grades'] %}
+        <tr>
+            <th><a href="/team/{{assignment['course_id']}}/{{assignment['sec_no']}}/{{grade[0]}}">{{grade[0]}}</a></th>
+            <th style="width:15%;">
+            <form action="/courses/{{assignment['course_id']}}/{{assignment['sec_no']}}/project/{{info[0]}}" method="POST">
+                {% if grade[1] is none %}
+                <input type="number" step="0.01" name="grade" placeholder="Not graded" >
+                {% else %}
+                <input type="number" step="0.01" name="grade" value="{{grade[1]}}">
+                {% endif %}
+                <input type="hidden" name="email" value="{{grade[0]}}">
+                <input type="submit" value="Submit">
+                {% if grade_id is defined and grade_id == grade[0] %}
+                ✓
+                {% endif %}
+            </form>
+            </th>
+        </tr>
+        {% endfor %}
+
+    </table>
+</body>
+</html>
